@@ -48,7 +48,7 @@ plt.xkcd()
 
 
 
-    <contextlib._GeneratorContextManager at 0x11469d198>
+    <contextlib._GeneratorContextManager at 0x10a7e10b8>
 
 
 
@@ -126,8 +126,8 @@ np.corrcoef(x_vals, y_vals)
 
 
 
-    array([[1.        , 0.84805296],
-           [0.84805296, 1.        ]])
+    array([[1.        , 0.95522727],
+           [0.95522727, 1.        ]])
 
 
 
@@ -201,7 +201,7 @@ RMSE1(y_vals, y_hat)
 
 
 
-    0.7772369138460854
+    1.097359277376351
 
 
 
@@ -213,7 +213,7 @@ RMSE2(y_vals, y_hat)
 
 
 
-    0.7040310035161832
+    0.08305128137697071
 
 
 
@@ -232,7 +232,7 @@ r2_score(y_vals, y_hat)
 
 
 
-    0.7040310035161832
+    0.08305128137697071
 
 
 
@@ -242,6 +242,10 @@ r2_score(y_vals, y_hat)
 ```python
 import statsmodels.api as sm # very standard
 ```
+
+    /anaconda3/lib/python3.6/site-packages/statsmodels/compat/pandas.py:56: FutureWarning: The pandas.core.datetools module is deprecated and will be removed in a future version. Please use the pandas.tseries module instead.
+      from pandas.core import datetools
+
 
 
 ```python
@@ -303,25 +307,25 @@ summary
 <table class="simpletable">
 <caption>OLS Regression Results</caption>
 <tr>
-  <th>Dep. Variable:</th>            <td>y</td>        <th>  R-squared:         </th> <td>   0.719</td>
+  <th>Dep. Variable:</th>            <td>y</td>        <th>  R-squared:         </th> <td>   0.912</td>
 </tr>
 <tr>
-  <th>Model:</th>                   <td>OLS</td>       <th>  Adj. R-squared:    </th> <td>   0.713</td>
+  <th>Model:</th>                   <td>OLS</td>       <th>  Adj. R-squared:    </th> <td>   0.911</td>
 </tr>
 <tr>
-  <th>Method:</th>             <td>Least Squares</td>  <th>  F-statistic:       </th> <td>   125.5</td>
+  <th>Method:</th>             <td>Least Squares</td>  <th>  F-statistic:       </th> <td>   510.7</td>
 </tr>
 <tr>
-  <th>Date:</th>             <td>Thu, 23 May 2019</td> <th>  Prob (F-statistic):</th> <td>4.06e-15</td>
+  <th>Date:</th>             <td>Fri, 24 May 2019</td> <th>  Prob (F-statistic):</th> <td>1.44e-27</td>
 </tr>
 <tr>
-  <th>Time:</th>                 <td>14:42:09</td>     <th>  Log-Likelihood:    </th> <td> -392.85</td>
+  <th>Time:</th>                 <td>07:30:51</td>     <th>  Log-Likelihood:    </th> <td> -380.77</td>
 </tr>
 <tr>
-  <th>No. Observations:</th>      <td>    51</td>      <th>  AIC:               </th> <td>   789.7</td>
+  <th>No. Observations:</th>      <td>    51</td>      <th>  AIC:               </th> <td>   765.5</td>
 </tr>
 <tr>
-  <th>Df Residuals:</th>          <td>    49</td>      <th>  BIC:               </th> <td>   793.6</td>
+  <th>Df Residuals:</th>          <td>    49</td>      <th>  BIC:               </th> <td>   769.4</td>
 </tr>
 <tr>
   <th>Df Model:</th>              <td>     1</td>      <th>                     </th>     <td> </td>   
@@ -335,24 +339,24 @@ summary
     <td></td>       <th>coef</th>     <th>std err</th>      <th>t</th>      <th>P>|t|</th>  <th>[0.025</th>    <th>0.975]</th>  
 </tr>
 <tr>
-  <th>const</th> <td>  165.2947</td> <td>  150.885</td> <td>    1.096</td> <td> 0.279</td> <td> -137.920</td> <td>  468.509</td>
+  <th>const</th> <td>  390.1596</td> <td>  119.078</td> <td>    3.276</td> <td> 0.002</td> <td>  150.863</td> <td>  629.456</td>
 </tr>
 <tr>
-  <th>x1</th>    <td>   29.1315</td> <td>    2.600</td> <td>   11.203</td> <td> 0.000</td> <td>   23.906</td> <td>   34.357</td>
+  <th>x1</th>    <td>   46.3801</td> <td>    2.052</td> <td>   22.600</td> <td> 0.000</td> <td>   42.256</td> <td>   50.504</td>
 </tr>
 </table>
 <table class="simpletable">
 <tr>
-  <th>Omnibus:</th>       <td>13.145</td> <th>  Durbin-Watson:     </th> <td>   2.022</td>
+  <th>Omnibus:</th>       <td> 0.187</td> <th>  Durbin-Watson:     </th> <td>   1.861</td>
 </tr>
 <tr>
-  <th>Prob(Omnibus):</th> <td> 0.001</td> <th>  Jarque-Bera (JB):  </th> <td>  14.891</td>
+  <th>Prob(Omnibus):</th> <td> 0.911</td> <th>  Jarque-Bera (JB):  </th> <td>   0.265</td>
 </tr>
 <tr>
-  <th>Skew:</th>          <td>-0.997</td> <th>  Prob(JB):          </th> <td>0.000584</td>
+  <th>Skew:</th>          <td>-0.134</td> <th>  Prob(JB):          </th> <td>   0.876</td>
 </tr>
 <tr>
-  <th>Kurtosis:</th>      <td> 4.741</td> <th>  Cond. No.          </th> <td>    114.</td>
+  <th>Kurtosis:</th>      <td> 2.769</td> <th>  Cond. No.          </th> <td>    114.</td>
 </tr>
 </table>
 
@@ -407,7 +411,7 @@ bias, slope
 
 
 
-    (36, 28)
+    (109, 43)
 
 
 
@@ -419,7 +423,7 @@ linreg.params
 
 
 
-    array([165.29472623,  29.13154899])
+    array([390.15958368,  46.3800907 ])
 
 
 
@@ -433,7 +437,7 @@ ols_slope, ols_bias
 
 
 
-    (29.131548985125946, 165.29472623494996)
+    (46.380090699058464, 390.159583684173)
 
 
 
@@ -498,7 +502,7 @@ r2_score(y_vals, ols_y_hat), r2_score(y_vals, best_y_hat)
 
 
 
-    (0.71919381491224, 0.6843259397513707)
+    (0.9124591462850884, 0.8084292762921518)
 
 
 
@@ -548,6 +552,110 @@ plt.show()
 
 
 ![png](lesson-plan_files/lesson-plan_48_1.png)
+
+
+### Estimation using the $\hat{m}$ approxmiation
+$$\hat{m} = \rho \frac{\sigma_y}{\sigma_x}$$
+
+$$\hat{m} = \frac{\overline{x}\times\overline{y}-\overline{xy}}{\big(\overline{x}\big)^2-\overline{x^2}}$$
+
+
+```python
+# formula 1
+rho = np.corrcoef(x_vals, y_vals)[0, 1]
+num = y_vals.std()
+den = x_vals.std()
+
+m_hat = rho * num/den
+m_hat
+```
+
+
+
+
+    46.38009069905847
+
+
+
+
+```python
+# formula 2
+num = x_vals.mean()*y_vals.mean() - np.mean(x_vals*y_vals)
+den = x_vals.mean()**2 - np.mean(x_vals**2)
+m_hat = num/den
+m_hat
+```
+
+
+
+
+    46.380090699058435
+
+
+
+
+```python
+# Let's try this slope out!!!
+```
+
+
+```python
+y_trial.shape
+```
+
+
+
+
+    (51, 2)
+
+
+
+
+```python
+y_trial = m_hat * x_vals
+r2_score(y_vals, y_trial)
+```
+
+
+
+
+    0.8379546115943945
+
+
+
+
+```python
+plt.scatter(x_vals, y_vals)
+plt.plot(x_vals, y_trial, c='r')
+plt.xlabel("x values")
+plt.ylabel("y values")
+plt.title("data points")
+plt.show()
+```
+
+
+![png](lesson-plan_files/lesson-plan_55_0.png)
+
+
+# Though our r2 is nice and high at 0.84...
+We should be careful because our line sits under most of our data, we can see this through a residual plot
+
+
+```python
+residuals_from_trial = y_trial - y_vals
+```
+
+
+```python
+plot_residuals(residuals_from_trial)
+```
+
+
+![png](lesson-plan_files/lesson-plan_58_0.png)
+
+
+
+![png](lesson-plan_files/lesson-plan_58_1.png)
 
 
 ### what did we learn?
