@@ -1,9 +1,7 @@
 
 ### Questions
-* normalization and standardization
-* finding residuals
-* statsmodels
-* r2 score - 2 equations
+- coefficient of determination
+- application of covariance
 
 ### Objectives
 YWBAT
@@ -13,13 +11,11 @@ YWBAT
 * graph residuals and discuss heteroskedacicity
 
 ### Outline
-* discuss linear regression and it's use cases
-* mock up some data
-* run ols on it
-    * statsmodels
-    * score using r2
-    * score r2 by hand comparing the 2 equations
-* summarize our sm ols summary
+* discuss the assumptions of Linear Regression
+* show where ols is used in some high school math
+* show an example of how to solve an 'OLS' problem using just numpy
+* show how multicollinearity messes everything up
+* get into some statsmodels ols 
 
 ### What is linear regression?
 fitting a line y_hat = mx + b to some data points (x vs y), such that our line has minimal error in predicting y values.
@@ -30,33 +26,661 @@ How one variable effects another variable.
 
 ![](linregimage.png)
 
+
+### class discussion 
+
 ### When do we use it?
 When there are two variables that are related
 
 Almost never
 
-### Let's make an example with some data!!!!!
+### Let's discuss the assumptions of OLS first
 
 
 ```python
 import numpy as np
+import pandas as pd
+
 import matplotlib.pyplot as plt
 import seaborn as sns
-plt.xkcd()
+```
+
+
+```python
+from sklearn.datasets import load_boston
+```
+
+
+```python
+boston = load_boston()
+```
+
+
+```python
+data = boston.data
+target = boston.target
+features = boston.feature_names
+```
+
+
+```python
+df = pd.DataFrame(data, columns=features)
+
+display(df.head())
+
+df['target'] = target
+
+display(df.head())
+
+
+```
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>CRIM</th>
+      <th>ZN</th>
+      <th>INDUS</th>
+      <th>CHAS</th>
+      <th>NOX</th>
+      <th>RM</th>
+      <th>AGE</th>
+      <th>DIS</th>
+      <th>RAD</th>
+      <th>TAX</th>
+      <th>PTRATIO</th>
+      <th>B</th>
+      <th>LSTAT</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>0</td>
+      <td>0.00632</td>
+      <td>18.0</td>
+      <td>2.31</td>
+      <td>0.0</td>
+      <td>0.538</td>
+      <td>6.575</td>
+      <td>65.2</td>
+      <td>4.0900</td>
+      <td>1.0</td>
+      <td>296.0</td>
+      <td>15.3</td>
+      <td>396.90</td>
+      <td>4.98</td>
+    </tr>
+    <tr>
+      <td>1</td>
+      <td>0.02731</td>
+      <td>0.0</td>
+      <td>7.07</td>
+      <td>0.0</td>
+      <td>0.469</td>
+      <td>6.421</td>
+      <td>78.9</td>
+      <td>4.9671</td>
+      <td>2.0</td>
+      <td>242.0</td>
+      <td>17.8</td>
+      <td>396.90</td>
+      <td>9.14</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>0.02729</td>
+      <td>0.0</td>
+      <td>7.07</td>
+      <td>0.0</td>
+      <td>0.469</td>
+      <td>7.185</td>
+      <td>61.1</td>
+      <td>4.9671</td>
+      <td>2.0</td>
+      <td>242.0</td>
+      <td>17.8</td>
+      <td>392.83</td>
+      <td>4.03</td>
+    </tr>
+    <tr>
+      <td>3</td>
+      <td>0.03237</td>
+      <td>0.0</td>
+      <td>2.18</td>
+      <td>0.0</td>
+      <td>0.458</td>
+      <td>6.998</td>
+      <td>45.8</td>
+      <td>6.0622</td>
+      <td>3.0</td>
+      <td>222.0</td>
+      <td>18.7</td>
+      <td>394.63</td>
+      <td>2.94</td>
+    </tr>
+    <tr>
+      <td>4</td>
+      <td>0.06905</td>
+      <td>0.0</td>
+      <td>2.18</td>
+      <td>0.0</td>
+      <td>0.458</td>
+      <td>7.147</td>
+      <td>54.2</td>
+      <td>6.0622</td>
+      <td>3.0</td>
+      <td>222.0</td>
+      <td>18.7</td>
+      <td>396.90</td>
+      <td>5.33</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>CRIM</th>
+      <th>ZN</th>
+      <th>INDUS</th>
+      <th>CHAS</th>
+      <th>NOX</th>
+      <th>RM</th>
+      <th>AGE</th>
+      <th>DIS</th>
+      <th>RAD</th>
+      <th>TAX</th>
+      <th>PTRATIO</th>
+      <th>B</th>
+      <th>LSTAT</th>
+      <th>target</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>0</td>
+      <td>0.00632</td>
+      <td>18.0</td>
+      <td>2.31</td>
+      <td>0.0</td>
+      <td>0.538</td>
+      <td>6.575</td>
+      <td>65.2</td>
+      <td>4.0900</td>
+      <td>1.0</td>
+      <td>296.0</td>
+      <td>15.3</td>
+      <td>396.90</td>
+      <td>4.98</td>
+      <td>24.0</td>
+    </tr>
+    <tr>
+      <td>1</td>
+      <td>0.02731</td>
+      <td>0.0</td>
+      <td>7.07</td>
+      <td>0.0</td>
+      <td>0.469</td>
+      <td>6.421</td>
+      <td>78.9</td>
+      <td>4.9671</td>
+      <td>2.0</td>
+      <td>242.0</td>
+      <td>17.8</td>
+      <td>396.90</td>
+      <td>9.14</td>
+      <td>21.6</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>0.02729</td>
+      <td>0.0</td>
+      <td>7.07</td>
+      <td>0.0</td>
+      <td>0.469</td>
+      <td>7.185</td>
+      <td>61.1</td>
+      <td>4.9671</td>
+      <td>2.0</td>
+      <td>242.0</td>
+      <td>17.8</td>
+      <td>392.83</td>
+      <td>4.03</td>
+      <td>34.7</td>
+    </tr>
+    <tr>
+      <td>3</td>
+      <td>0.03237</td>
+      <td>0.0</td>
+      <td>2.18</td>
+      <td>0.0</td>
+      <td>0.458</td>
+      <td>6.998</td>
+      <td>45.8</td>
+      <td>6.0622</td>
+      <td>3.0</td>
+      <td>222.0</td>
+      <td>18.7</td>
+      <td>394.63</td>
+      <td>2.94</td>
+      <td>33.4</td>
+    </tr>
+    <tr>
+      <td>4</td>
+      <td>0.06905</td>
+      <td>0.0</td>
+      <td>2.18</td>
+      <td>0.0</td>
+      <td>0.458</td>
+      <td>7.147</td>
+      <td>54.2</td>
+      <td>6.0622</td>
+      <td>3.0</td>
+      <td>222.0</td>
+      <td>18.7</td>
+      <td>396.90</td>
+      <td>5.33</td>
+      <td>36.2</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
+
+```python
+df.shape
 ```
 
 
 
 
-    <contextlib._GeneratorContextManager at 0x10a7e10b8>
+    (506, 14)
 
 
+
+### Assumptions
+Features - your columns in your matrix
+1. Linear relationship between features and target
+2. No multicollinearity of features with target
+
+Residuals
+- Residuals are normally distributed
+- Residuals have homoskedacicity
+- Exogeneity which is basically what the 2 above assumptions complete
+- Errors are normally distributed amongst the errors as well
+
+
+[Read more here](https://en.wikipedia.org/wiki/Ordinary_least_squares#Assumptions)
+
+# Now to discuss multicollinearity
+
+here's a system of equations
+
+$$ \beta_1 \times 2 + \beta_2 \times -1 + \beta_3 \times 2 = 10 $$
+
+$$ \beta_1 \times 1 + \beta_2 \times -2 + \beta_3 \times 1 = 8 $$
+
+$$ \beta_1 \times 3 + \beta_2 \times -1 + \beta_3 \times 2 = 11 $$
+
+
+if we solve this system we get a solution of $\beta_1 = 1, \beta_2 = -2, \beta_3 = 3$
+
+
+#### formula derivation
+<details>
+    <summary>Really Important Derivation</summary>
+    
+$$ y = X\overline{\beta} $$
+
+$$ X^T y = X^T X \overline{\beta} $$
+
+$$ (X^T X)^{-1}X^T y = (X^T X)^{-1}X^T X \overline{\beta} $$
+
+
+$$ (X^T X)^{-1}X^T y = \overline{\beta} $$ 
+
+</details>
+
+
+```python
+np.identity(3) # the 1 equivalent in matrix spaces
+```
+
+
+
+
+    array([[1., 0., 0.],
+           [0., 1., 0.],
+           [0., 0., 1.]])
+
+
+
+
+```python
+# let's solve this using numpy
+X = np.array([[2, -1, 2], [1, -2, 1], [3, -1, 2]]) # features
+y = np.array([[10], [8], [11]]) # targets
+
+display(X)
+display(y)
+```
+
+
+    array([[ 2, -1,  2],
+           [ 1, -2,  1],
+           [ 3, -1,  2]])
+
+
+
+    array([[10],
+           [ 8],
+           [11]])
+
+
+
+```python
+X.shape, y.shape
+```
+
+
+
+
+    ((3, 3), (3, 1))
+
+
+
+
+```python
+display(X.T) # this is X transpose
+display(X)
+
+# The big question is does XTX inverse even exist?
+```
+
+
+    array([[ 2,  1,  3],
+           [-1, -2, -1],
+           [ 2,  1,  2]])
+
+
+
+    array([[ 2, -1,  2],
+           [ 1, -2,  1],
+           [ 3, -1,  2]])
+
+
+
+```python
+xtx = X.T.dot(X)
+xtx # this is XT * X 
+```
+
+
+
+
+    array([[14, -7, 11],
+           [-7,  6, -6],
+           [11, -6,  9]])
+
+
+
+
+```python
+# Now to calcualte the inverse of XTX
+xtxinv = np.linalg.inv(xtx)
+xtxinv
+```
+
+
+
+
+    array([[ 2.        , -0.33333333, -2.66666667],
+           [-0.33333333,  0.55555556,  0.77777778],
+           [-2.66666667,  0.77777778,  3.88888889]])
+
+
+
+
+```python
+# (XTX)^-1 * XT * y = beta terms
+# beta = xtxinv * XT * y
+
+betas = xtxinv.dot(X.T).dot(y)
+
+betas
+```
+
+
+
+
+    array([[ 1.],
+           [-2.],
+           [ 3.]])
+
+
+
+so this is cool!!!! We can solve systems of equations without any machine learning, just using math! 
+
+### But what happens if we introduce multicollinearity? 
+
+
+```python
+X = np.array([[2, 7.95, 2], [1, 4.01, 1], [3, 11.97, 2]]) # features with high correlation
+y = np.array([[10], [8], [11]]) # same target
+
+display(X) # notice the multicollinearity of X's columns 1 and 2
+display(y)
+```
+
+
+    array([[ 2.  ,  7.95,  2.  ],
+           [ 1.  ,  4.01,  1.  ],
+           [ 3.  , 11.97,  2.  ]])
+
+
+
+    array([[10],
+           [ 8],
+           [11]])
+
+
+
+```python
+# how does this effect the inverse of XTX? 
+xtx = X.T.dot(X)
+xtxinv = np.linalg.inv(xtx)
+
+
+display(xtx)
+display(xtxinv)
+```
+
+
+    array([[ 14.    ,  55.82  ,  11.    ],
+           [ 55.82  , 222.5635,  43.85  ],
+           [ 11.    ,  43.85  ,   9.    ]])
+
+
+
+    array([[ 1.63773469e+04, -4.08775510e+03, -1.00306122e+02],
+           [-4.08775510e+03,  1.02040816e+03,  2.44897959e+01],
+           [-1.00306122e+02,  2.44897959e+01,  3.38775510e+00]])
+
+
+
+```python
+xtxinv.dot(X.T).dot(y) # these are our beta terms
+```
+
+
+
+
+    array([[-343.57142857],
+           [  85.71428571],
+           [   7.85714286]])
+
+
+
+In general having multicollinearity creates a space XTX that has no inverse.
+
+
+This means the entire problem is unsolvable. 
 
 **Generate x data**
+
+### Let's investigate the assumptions of OLS
+
+
+```python
+# eyeball test
+
+this, that = plt.subplots(nrows=4, ncols=4, figsize=(10, 10))
+
+for index, ax in enumerate(that.flatten()):
+    try:
+        vals = df[df.columns[index]]
+        ax.scatter(vals, df.target, label=df.columns[index])
+        # ax.set_title(df.columns[index])
+        ax.legend()
+    except:
+        continue
+
+plt.tight_layout()
+plt.show()
+```
+
+
+![png](lesson-plan_files/lesson-plan_28_0.png)
+
+
+### use Pearson correlation to test for linearity
+
+
+```python
+col_corrs = []
+for column in df.columns:
+    print(column)
+    print(np.corrcoef(df[column], df.target)[0][1])
+    col_corrs.append(np.corrcoef(df[column], df.target)[0][1])
+    print("-"*20)
+```
+
+    CRIM
+    -0.3883046085868114
+    --------------------
+    ZN
+    0.3604453424505433
+    --------------------
+    INDUS
+    -0.4837251600283728
+    --------------------
+    CHAS
+    0.17526017719029818
+    --------------------
+    NOX
+    -0.4273207723732824
+    --------------------
+    RM
+    0.695359947071539
+    --------------------
+    AGE
+    -0.37695456500459606
+    --------------------
+    DIS
+    0.24992873408590388
+    --------------------
+    RAD
+    -0.38162623063977746
+    --------------------
+    TAX
+    -0.46853593356776696
+    --------------------
+    PTRATIO
+    -0.5077866855375615
+    --------------------
+    B
+    0.33346081965706637
+    --------------------
+    LSTAT
+    -0.7376627261740148
+    --------------------
+    target
+    1.0
+    --------------------
+
+
+
+```python
+plt.figure(figsize=(8, 5))
+plt.bar(df.columns, np.abs(col_corrs))
+plt.xticks(rotation=70)
+plt.show()
+```
+
+
+![png](lesson-plan_files/lesson-plan_31_0.png)
+
+
+### Now let's investigate multicollinearity
+
+
+```python
+corr = df.corr()
+
+plt.figure(figsize=(10, 10))
+sns.heatmap(data=corr, annot=True, fmt='0.2g', cmap=sns.color_palette('Blues'))
+plt.tight_layout()
+plt.show()
+```
+
+
+![png](lesson-plan_files/lesson-plan_33_0.png)
+
+
+
+```python
+
+```
 
 
 ```python
 # 50 values between 0 and 100 including 0 and 100
+
 x_vals = np.linspace(0, 100, 51)
 ```
 
@@ -110,10 +734,6 @@ plt.title("data points")
 plt.show()
 ```
 
-
-![png](lesson-plan_files/lesson-plan_12_0.png)
-
-
 ## Compare Guessing to Using Statsmodels
 
 ### Let's check the correlation coefficient
@@ -122,14 +742,6 @@ plt.show()
 ```python
 np.corrcoef(x_vals, y_vals)
 ```
-
-
-
-
-    array([[1.        , 0.95522727],
-           [0.95522727, 1.        ]])
-
-
 
 
 ```python
@@ -146,18 +758,6 @@ y_hat
 ```
 
 
-
-
-    array([   0.,   60.,  120.,  180.,  240.,  300.,  360.,  420.,  480.,
-            540.,  600.,  660.,  720.,  780.,  840.,  900.,  960., 1020.,
-           1080., 1140., 1200., 1260., 1320., 1380., 1440., 1500., 1560.,
-           1620., 1680., 1740., 1800., 1860., 1920., 1980., 2040., 2100.,
-           2160., 2220., 2280., 2340., 2400., 2460., 2520., 2580., 2640.,
-           2700., 2760., 2820., 2880., 2940., 3000.])
-
-
-
-
 ```python
 plt.figure(figsize=(8, 5))
 plt.scatter(x_vals, y_vals)
@@ -168,10 +768,6 @@ plt.title("data points")
 plt.legend()
 plt.show()
 ```
-
-
-![png](lesson-plan_files/lesson-plan_18_0.png)
-
 
 ### RMSE equation
 ![](rmse.png)
@@ -199,23 +795,9 @@ RMSE1(y_vals, y_hat)
 ```
 
 
-
-
-    1.097359277376351
-
-
-
-
 ```python
 RMSE2(y_vals, y_hat)
 ```
-
-
-
-
-    0.08305128137697071
-
-
 
 ### which one will python use? Let's import from sklearn.metrics
 
@@ -229,13 +811,6 @@ from sklearn.metrics import r2_score
 r2_score(y_vals, y_hat)
 ```
 
-
-
-
-    0.08305128137697071
-
-
-
 ### now, how can we do this using statsmodels?
 
 
@@ -243,25 +818,10 @@ r2_score(y_vals, y_hat)
 import statsmodels.api as sm # very standard
 ```
 
-    /anaconda3/lib/python3.6/site-packages/statsmodels/compat/pandas.py:56: FutureWarning: The pandas.core.datetools module is deprecated and will be removed in a future version. Please use the pandas.tseries module instead.
-      from pandas.core import datetools
-
-
 
 ```python
 x_vals
 ```
-
-
-
-
-    array([  0.,   2.,   4.,   6.,   8.,  10.,  12.,  14.,  16.,  18.,  20.,
-            22.,  24.,  26.,  28.,  30.,  32.,  34.,  36.,  38.,  40.,  42.,
-            44.,  46.,  48.,  50.,  52.,  54.,  56.,  58.,  60.,  62.,  64.,
-            66.,  68.,  70.,  72.,  74.,  76.,  78.,  80.,  82.,  84.,  86.,
-            88.,  90.,  92.,  94.,  96.,  98., 100.])
-
-
 
 
 ```python
@@ -275,22 +835,6 @@ x[:10]
 ```
 
 
-
-
-    array([[ 1.,  0.],
-           [ 1.,  2.],
-           [ 1.,  4.],
-           [ 1.,  6.],
-           [ 1.,  8.],
-           [ 1., 10.],
-           [ 1., 12.],
-           [ 1., 14.],
-           [ 1., 16.],
-           [ 1., 18.]])
-
-
-
-
 ```python
 linreg = sm.OLS(y_vals, x).fit()
 ```
@@ -300,67 +844,6 @@ linreg = sm.OLS(y_vals, x).fit()
 summary = linreg.summary()
 summary
 ```
-
-
-
-
-<table class="simpletable">
-<caption>OLS Regression Results</caption>
-<tr>
-  <th>Dep. Variable:</th>            <td>y</td>        <th>  R-squared:         </th> <td>   0.912</td>
-</tr>
-<tr>
-  <th>Model:</th>                   <td>OLS</td>       <th>  Adj. R-squared:    </th> <td>   0.911</td>
-</tr>
-<tr>
-  <th>Method:</th>             <td>Least Squares</td>  <th>  F-statistic:       </th> <td>   510.7</td>
-</tr>
-<tr>
-  <th>Date:</th>             <td>Fri, 24 May 2019</td> <th>  Prob (F-statistic):</th> <td>1.44e-27</td>
-</tr>
-<tr>
-  <th>Time:</th>                 <td>07:30:51</td>     <th>  Log-Likelihood:    </th> <td> -380.77</td>
-</tr>
-<tr>
-  <th>No. Observations:</th>      <td>    51</td>      <th>  AIC:               </th> <td>   765.5</td>
-</tr>
-<tr>
-  <th>Df Residuals:</th>          <td>    49</td>      <th>  BIC:               </th> <td>   769.4</td>
-</tr>
-<tr>
-  <th>Df Model:</th>              <td>     1</td>      <th>                     </th>     <td> </td>   
-</tr>
-<tr>
-  <th>Covariance Type:</th>      <td>nonrobust</td>    <th>                     </th>     <td> </td>   
-</tr>
-</table>
-<table class="simpletable">
-<tr>
-    <td></td>       <th>coef</th>     <th>std err</th>      <th>t</th>      <th>P>|t|</th>  <th>[0.025</th>    <th>0.975]</th>  
-</tr>
-<tr>
-  <th>const</th> <td>  390.1596</td> <td>  119.078</td> <td>    3.276</td> <td> 0.002</td> <td>  150.863</td> <td>  629.456</td>
-</tr>
-<tr>
-  <th>x1</th>    <td>   46.3801</td> <td>    2.052</td> <td>   22.600</td> <td> 0.000</td> <td>   42.256</td> <td>   50.504</td>
-</tr>
-</table>
-<table class="simpletable">
-<tr>
-  <th>Omnibus:</th>       <td> 0.187</td> <th>  Durbin-Watson:     </th> <td>   1.861</td>
-</tr>
-<tr>
-  <th>Prob(Omnibus):</th> <td> 0.911</td> <th>  Jarque-Bera (JB):  </th> <td>   0.265</td>
-</tr>
-<tr>
-  <th>Skew:</th>          <td>-0.134</td> <th>  Prob(JB):          </th> <td>   0.876</td>
-</tr>
-<tr>
-  <th>Kurtosis:</th>      <td> 2.769</td> <th>  Cond. No.          </th> <td>    114.</td>
-</tr>
-</table>
-
-
 
 ### Let's interpret this!
 * R-squared - 71% so we can explain 71% of the variance
@@ -395,25 +878,10 @@ plot_residuals(residuals)
 ```
 
 
-![png](lesson-plan_files/lesson-plan_36_0.png)
-
-
-
-![png](lesson-plan_files/lesson-plan_36_1.png)
-
-
-
 ```python
 # how close were we?
 bias, slope
 ```
-
-
-
-
-    (109, 43)
-
-
 
 
 ```python
@@ -421,25 +889,11 @@ linreg.params
 ```
 
 
-
-
-    array([390.15958368,  46.3800907 ])
-
-
-
-
 ```python
 ols_bias, ols_slope = linreg.params
 ols_y_hat = ols_bias + ols_slope*x_vals
 ols_slope, ols_bias
 ```
-
-
-
-
-    (46.380090699058464, 390.159583684173)
-
-
 
 
 ```python
@@ -453,10 +907,6 @@ plt.show()
 ```
 
 
-![png](lesson-plan_files/lesson-plan_40_0.png)
-
-
-
 ```python
 sm_residuals = linreg.resid
 ```
@@ -467,12 +917,19 @@ plot_residuals(sm_residuals, ylim=[-2000, 2000])
 ```
 
 
-![png](lesson-plan_files/lesson-plan_42_0.png)
+```python
+
+```
 
 
+```python
 
-![png](lesson-plan_files/lesson-plan_42_1.png)
+```
 
+
+```python
+
+```
 
 
 ```python
@@ -491,20 +948,9 @@ plt.show()
 ```
 
 
-![png](lesson-plan_files/lesson-plan_44_0.png)
-
-
-
 ```python
 r2_score(y_vals, ols_y_hat), r2_score(y_vals, best_y_hat)
 ```
-
-
-
-
-    (0.9124591462850884, 0.8084292762921518)
-
-
 
 
 ```python
@@ -528,14 +974,6 @@ plt.show()
 ```
 
 
-![png](lesson-plan_files/lesson-plan_47_0.png)
-
-
-
-![png](lesson-plan_files/lesson-plan_47_1.png)
-
-
-
 ```python
 plt.hist(residuals_best, bins=20)
 plt.title("residuals for 'original line'")
@@ -545,14 +983,6 @@ plt.hist(residuals_ols, bins=20)
 plt.title("residuals for ols model")
 plt.show()
 ```
-
-
-![png](lesson-plan_files/lesson-plan_48_0.png)
-
-
-
-![png](lesson-plan_files/lesson-plan_48_1.png)
-
 
 ### Estimation using the $\hat{m}$ approxmiation
 $$\hat{m} = \rho \frac{\sigma_y}{\sigma_x}$$
@@ -571,13 +1001,6 @@ m_hat
 ```
 
 
-
-
-    46.38009069905847
-
-
-
-
 ```python
 # formula 2
 num = x_vals.mean()*y_vals.mean() - np.mean(x_vals*y_vals)
@@ -585,13 +1008,6 @@ den = x_vals.mean()**2 - np.mean(x_vals**2)
 m_hat = num/den
 m_hat
 ```
-
-
-
-
-    46.380090699058435
-
-
 
 
 ```python
@@ -604,24 +1020,10 @@ y_trial.shape
 ```
 
 
-
-
-    (51, 2)
-
-
-
-
 ```python
 y_trial = m_hat * x_vals
 r2_score(y_vals, y_trial)
 ```
-
-
-
-
-    0.8379546115943945
-
-
 
 
 ```python
@@ -632,10 +1034,6 @@ plt.ylabel("y values")
 plt.title("data points")
 plt.show()
 ```
-
-
-![png](lesson-plan_files/lesson-plan_55_0.png)
-
 
 # Though our r2 is nice and high at 0.84...
 We should be careful because our line sits under most of our data, we can see this through a residual plot
@@ -649,13 +1047,5 @@ residuals_from_trial = y_trial - y_vals
 ```python
 plot_residuals(residuals_from_trial)
 ```
-
-
-![png](lesson-plan_files/lesson-plan_58_0.png)
-
-
-
-![png](lesson-plan_files/lesson-plan_58_1.png)
-
 
 ### what did we learn?
